@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>AI의 현실을 말하다</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#6C2BD9", secondary: "#2D3748" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before {
+        content: "\f3c2";
+      }
+
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        background-color: #0b0e17;
+        color: #fff;
+      }
+
+      .glass-effect {
+        background: rgba(22, 28, 45, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .neon-border {
+        box-shadow: 0 0 10px rgba(108, 43, 217, 0.5),
+          0 0 20px rgba(108, 43, 217, 0.3);
+      }
+
+      .neon-text {
+        text-shadow: 0 0 10px rgba(108, 43, 217, 0.7),
+          0 0 20px rgba(108, 43, 217, 0.5);
+      }
+
+      .gradient-text {
+        background: linear-gradient(90deg, #6c2bd9, #4299e1);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .gradient-bg {
+        background: linear-gradient(135deg, #6c2bd9, #4299e1);
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -28px;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6c2bd9, #4299e1);
+        box-shadow: 0 0 10px rgba(108, 43, 217, 0.7);
+      }
+
+      .timeline-item::after {
+        content: "";
+        position: absolute;
+        left: -23px;
+        top: 24px;
+        width: 2px;
+        height: calc(100% + 16px);
+        background: linear-gradient(to bottom, #6c2bd9, rgba(66, 153, 225, 0.3));
+      }
+
+      .timeline-item:last-child::after {
+        display: none;
+      }
+
+      .glow-on-hover:hover {
+        box-shadow: 0 0 15px rgba(108, 43, 217, 0.8);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+      }
+
+      .scroll-indicator {
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .bg-grid {
+        background-image: linear-gradient(
+            rgba(66, 153, 225, 0.05) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(66, 153, 225, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+
+      /* 새로운 glow-pulse 애니메이션 추가 */
+      @keyframes glow-pulse {
+        0%,
+        100% {
+          box-shadow:
+            0 0 10px rgba(108, 43, 217, 0.4),
+            0 0 20px rgba(66, 153, 225, 0.2);
+        } /* primary 색상과 blue-400/cyan-400 계열 색상 조합 */
+        50% {
+          box-shadow:
+            0 0 15px rgba(108, 43, 217, 0.7),
+            0 0 30px rgba(66, 153, 225, 0.5);
+        }
+      }
+
+      .animate-glow-pulse {
+        animation: glow-pulse 2.5s infinite alternate;
+      }
+
+      /* 세션별 상세 소개 애니메이션 스타일 */
+      .session-item {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      }
+
+      .session-item.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body class="bg-grid min-h-screen">
+    <!-- Navigation -->
+    <nav
+      class="glass-effect fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center"
+    >
+      <!-- 로고 부분 -->
+      <div class="flex items-center justify-center py-1 px-3 rounded-lg glass-effect" 
+           style="box-shadow: 0 0 8px rgba(108, 43, 217, 0.5);">
+        <span class="text-xl md:text-2xl font-bold gradient-text neon-text text-center" style="font-family: 'Noto Sans KR', sans-serif;">
+          NonDevAI
+        </span>
+      </div>
+      <!-- 로고 부분 끝 -->
+
+      <div class="flex items-center space-x-4">
+        <a
+          href="#about"
+          class="text-sm text-gray-300 hover:text-white transition-colors"
+          >소개</a
+        >
+        <a
+          href="#schedule"
+          class="text-sm text-gray-300 hover:text-white transition-colors"
+          >일정</a
+        >
+        <a
+          href="#session-details"
+          class="text-sm text-gray-300 hover:text-white transition-colors"
+          >상세 세션</a
+        >
+        <a
+          href="#location"
+          class="text-sm text-gray-300 hover:text-white transition-colors"
+          >장소</a
+        >
+        <a
+          href="https://forms.gle/TnWra3yN5Vbod3JB6"
+          target="_blank"
+          class="bg-primary text-white px-4 py-2 !rounded-button text-sm font-medium hover:bg-opacity-90 transition-all neon-border inline-block"
+        >
+          신청하기
+        </a>
+      </div>
+    </nav>
+
+    <!-- 1. 🔥 AI의 현실을 말하다 (Hero Section) -->
+    <section class="pt-24 pb-16 px-4 relative overflow-hidden">
+      <div class="absolute inset-0 z-0">
+        <div
+          class="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-primary opacity-10 filter blur-3xl"
+        ></div>
+        <div
+          class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-blue-500 opacity-10 filter blur-3xl"
+        ></div>
+      </div>
+
+      <div class="max-w-4xl mx-auto relative z-10">
+        <div class="text-center mb-8">
+          <!-- 로고 추가 -->
+          <div class="flex justify-center mb-4">
+            <div class="w-[30%] flex items-center justify-center py-1 px-3 rounded-lg glass-effect" 
+                 style="box-shadow: 0 0 8px rgba(108, 43, 217, 0.5);">
+              <span class="text-xl md:text-2xl font-bold gradient-text neon-text text-center" style="font-family: 'Noto Sans KR', sans-serif;">
+                NonDevAI
+              </span>
+            </div>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 neon-text leading-tight">
+            🔥 AI의 현실을 말하다
+            <br>비개발자 AI툴 활용 공유회
+          </h1>
+          <p class="text-base sm:text-lg md:text-xl text-gray-300 mb-8 leading-relaxed px-2">
+            AI 시대에 <span class="text-yellow-300 font-bold neon-text" style="text-shadow: 0 0 10px #fbbf24, 0 0 10px #f59e0b;">'살아남을 1%'</span>가 되기 위해<br> <br class="hidden sm:block">비개발자가 경험한<br />AI/자동화/수익창출에 대한 이야기
+          </p>
+          <div class="glass-effect p-4 sm:p-6 rounded-lg max-w-2xl mx-auto">
+            <p class="text-base sm:text-lg font-medium gradient-text mb-2 leading-relaxed">
+              💡 AI로 수익 창출하고,<br />생산성을 높였다던데...<br />정말일까?
+            </p>
+            <p class="text-sm sm:text-base text-gray-300 leading-relaxed">
+              AI의 발전은 이제 시작,<br>
+              지금 시작해야 늦지 않습니다!<br>
+              비개발자가 AI를 활용하는 방법과 한계에 대하여.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-12 text-center">
+          <div
+            class="scroll-indicator w-6 h-10 mx-auto border-2 border-white !rounded-full relative"
+          >
+            <div
+              class="w-1.5 h-1.5 bg-white !rounded-full absolute top-2 left-1/2 transform -translate-x-1/2"
+            ></div>
+          </div>
+          <p class="text-xs text-gray-400 mt-2">스크롤하여 더 알아보기</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 🎯 이런 분들, 모여주세요! (Target Audience Section) -->
+    <section id="about" class="py-16 px-4 relative">
+      <div class="max-w-4xl mx-auto">
+        <div class="glass-effect rounded-lg p-4 sm:p-6 md:p-8 neon-border">
+          <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 gradient-text text-center">
+            🎯 이런 분들, 모여주세요!
+          </h2>
+
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-checkbox-circle-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-sm sm:text-base text-gray-200">
+                AI의 빠른 발전 속도를 쫓아갈 엄두가 안 나는
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-checkbox-circle-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-sm sm:text-base text-gray-200">
+                AI 툴, 뭐부터 시작해야 할지 막막한
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-checkbox-circle-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-sm sm:text-base text-gray-200">
+                바이브코딩이 뭔지, 정말 가능한지 궁금한
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-checkbox-circle-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-sm sm:text-base text-gray-200">
+                AI를 어떻게 활용하는지 엿보고 싶은
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 📊 비개발자 AI 활용 트렌드 (AI Trend Chart Section) -->
+    <section id="ai-trend" class="py-16 px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-center gradient-text">
+          📊 비개발자 AI 활용 트렌드
+        </h2>
+
+        <div class="glass-effect rounded-lg p-6">
+          <div id="aiTrendChart" class="w-full h-80"></div>
+          <br>
+          <div class="glass-effect rounded-lg p-4 sm:p-6 mb-6">
+            <p class="text-base sm:text-lg text-center text-gray-300 font-medium">
+              AI 활용률은 다양한 분야로 <br>확장/증가하고 있습니다.
+            </p>
+          </div>
+        </div>
+
+
+      </div>
+    </section>
+
+    <!-- 4. 🚀 왜 이 행사에 와야 할까요? (Why Attend Section) -->
+    <section id="why-attend" class="py-16 px-4 relative">
+      <div class="absolute inset-0 z-0">
+        <div
+          class="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-primary opacity-10 filter blur-3xl"
+        ></div>
+      </div>
+
+      <div class="max-w-4xl mx-auto relative z-10">
+        <h2 class="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-center gradient-text">
+          🚀 왜 이 행사에 와야 할까요?
+        </h2>
+
+        <div class="glass-effect rounded-lg p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+          <p class="text-lg sm:text-xl font-medium text-center mb-4 sm:mb-6 gradient-text">
+            💭 수익 창출? 업무 완벽 자동화?<br>어디까지 가능할까!
+          </p>
+
+          <h3 class="text-base sm:text-lg font-medium mb-4 text-white">
+            🎯 공유회 미리보기:
+          </h3>
+
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-star-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                AI 기초, 다양한 툴 소개, 성능 비교까지<br>
+                - GPT, 토큰, MCP, A2A
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-star-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                비개발자의 AI 활용과 한계<br>
+                - 콘텐츠/문서/코딩/자동화/분석 등
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-star-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                AI를 잘 활용하기 위해 필요한 공부<br>- 교육 커리큘럼 짜는 방법까지
+
+              </p>
+            </div>
+
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-star-fill text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                AI 사용/활용 고민과 솔루션을 공유<br>
+
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-effect rounded-lg p-8">
+          <h3 class="text-lg font-medium mb-4 text-white">
+            🔍 이번 공유회의 특별함:
+          </h3>
+
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-focus-3-line text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">AI 툴 사용 경험 기반으로<br>
+                '지금 당장의 기술과 활용' 공유</p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-focus-3-line text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                코딩을 모르는 비개발자의<br>AI 툴로 생산성향상 방법 공유
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-focus-3-line text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                AI로 성과 및 수익을 창출할 수 있는<br> 핵심 조건 공유
+              </p>
+            </div>
+
+            <div class="flex items-start">
+              <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                <i class="ri-focus-3-line text-primary text-xl"></i>
+              </div>
+              <p class="text-gray-200">
+                AI에 대해 아직은 잘 몰라도,<br> 함께 성장할 사람들과<br>발걸음을 떼는 시작점
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ⏰ 하루 일정표 (Schedule Section) -->
+    <section id="schedule" class="py-16 px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8 text-center gradient-text">
+          ⏰ 하루 일정표
+        </h2>
+
+        <div class="glass-effect rounded-lg p-8">
+          <div class="relative pl-10">
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">~ 13:00</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    🥤 등록 및 웰컴 드링크
+                  </h3>
+                  <p class="text-gray-300 mt-1">간단한 스낵/음료 제공</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">13:00 – 13:30</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    🎉 오프닝
+                  </h3>
+                  <p class="text-gray-300 mt-1">인사 및 세션 안내</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">13:30 – 14:10</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    🤖 세션 1. <br>"LLM GPT 소개 및 비교"
+                  </h3>
+                  <p class="text-gray-300 mt-1">
+                    AI에 대한 기본 지식과 ChatGPT, Gemini, Claude, Perplexity 및
+                    A2A 서비스 소개
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">14:20 – 14:50</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    🛠️ 세션 2. <br>"작업별 AI 서비스 소개"
+                  </h3>
+                  <p class="text-gray-300 mt-1">
+                    리서치, 콘텐츠, 문서, 코딩,<br>
+                    자동화, 분석, 학습 등에 사용해본 <br>AI 종류와 특징 소개
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">15:00 – 15:50</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    💼 세션 3. <br>"활용 사례와 비개발자의 한계점"
+                  </h3>
+                  <p class="text-gray-300 mt-1">
+                    AI를 실무와 개인 생활에 적용하여<br>
+                    활용하고 있는 간단한 사례 소개
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">15:50 – 16:00</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    ☕ 휴식 및 자리 이동
+                  </h3>
+                  <p class="text-gray-300 mt-1">
+                    비슷한 고민이 있는 사람들과<br>그룹 형성
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pb-8 pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">16:00 – 16:40</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">
+                    🎯 세션별 Deep Dive
+                  </h3>
+                  <p class="text-gray-300 mt-1">
+                    각자의 고민 및 궁금증을<br>함께 해결
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item relative pl-6">
+              <div
+                class="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <div class="md:w-1/4">
+                  <p class="text-sm text-gray-400">16:40 – 17:00</p>
+                </div>
+                <div class="md:w-3/4">
+                  <h3 class="text-lg font-medium text-white">👋 마무리</h3>
+                  <p class="text-gray-300 mt-1">정리 및 네트워킹</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 세션 1 이미지 (툴 비교 차트) -->
+    <div class="mb-10 p-6 rounded-lg shadow-lg bg-gray-50 border border-gray-200 flex justify-center items-center">
+      <div class="w-full max-w-2xl border-4 border-primary rounded-lg overflow-hidden" style="box-shadow: 0 0 10px rgba(108,43,217,0.2);">
+        <img src="attached_asset/image_tools.png" alt="세션1 툴 비교 차트" class="w-full h-auto object-contain" />
+      </div>
+    </div>
+
+    <!-- New Section: 📋 세션별 상세 소개 (Session Details Section) -->
+    <section id="session-details" class="py-16 px-4 bg-white text-gray-900">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8 text-center text-primary">
+          📋 세션별 상세 소개
+        </h2>
+
+        <!-- Session 1 Detail -->
+        <div class="mb-10 p-6 rounded-lg shadow-lg bg-gray-50 border border-gray-200 session-item">
+          <h3 class="text-xl font-bold mb-4 text-primary">
+            🤖 세션 1. "LLM GPT 소개 및 비교"
+          </h3>
+          <p class="text-gray-600 mb-2">시간: 13:15 – 13:50</p>
+          <p class="font-semibold mb-2 text-gray-800">이런 내용을 다룹니다</p>
+          <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
+            <li>AI 기초 핵심: GPT, 토큰, MCP 등 꼭 알아야 할 개념들</li>
+            <li>성능 비교 분석: ChatGPT vs Gemini vs Claude vs Perplexity 실전 테스트 결과</li>
+            <li>A2A 서비스: AI끼리 연결해서 자동화하는 방법</li>
+            <li>선택 기준: 무료/유료 구분과 상황별 최적 도구 선택법</li>
+          </ul>
+          <p class="font-semibold mt-4 mb-2 text-gray-800">이런 분들께 도움됩니다</p>
+          <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
+            <li>AI 기본 개념이 헷갈리는 분</li>
+            <li>여러 AI 중 뭘 메인으로 써야 할지 고민인 분</li>
+            <li>토큰이 뭔지, 유료 구독이 필요한지 궁금한 분</li>
+          </ul>
+        </div>
+
+        <!-- Session 2 Detail -->
+        <div class="mb-10 p-6 rounded-lg shadow-lg bg-gray-50 border border-gray-200 session-item">
+          <h3 class="text-xl font-bold mb-4 text-primary">
+            🛠️ 세션 2. "작업별 AI 서비스 소개"
+          </h3>
+          <p class="text-gray-600 mb-2">시간: 14:00 – 14:50</p>
+          <p class="font-semibold mb-2 text-gray-800">이런 내용을 다룹니다</p>
+          <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
+            <li>업무 영역별 툴 매칭: 콘텐츠/문서/코딩/자동화/분석 각 영역의 베스트 툴들</li>
+            <li>비개발자 한계선: 어디까지 가능하고 어디서 막히는지 솔직한 경험담</li>
+            <li>생산성 향상 실사례: 실제로 시간/비용을 얼마나 절약했는지 구체적 수치</li>
+            <li>실패 사례 공유: 기대했지만 별로였던 툴들과 그 이유</li>
+          </ul>
+          <p class="font-semibold mt-4 mb-2 text-gray-800">이런 분들께 도움됩니다</p>
+          <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
+            <li>내 업무에 맞는 AI 툴을 찾고 싶은 분</li>
+            <li>AI로 업무 효율을 높이고 싶지만 어디서 시작할지 모르는 분</li>
+            <li>AI 활용의 현실적 한계가 궁금한 분</li>
+          </ul>
+        </div>
+
+        <!-- Key Point -->
+        <div class="p-6 rounded-lg shadow-lg bg-gray-50 border border-gray-200 text-center session-item">
+          <p class="text-lg font-bold text-primary mb-2">💡 핵심 포인트</p>
+          <p class="text-gray-800">
+            <span class="font-bold">"이상 vs 현실"</span>을 명확히 구분해서, 실제 써보고 검증된 내용만 공유합니다!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 📍 행사 정보 한눈에 (Event Info Section) -->
+    <section class="py-16 px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8 text-center gradient-text">
+          📍 행사 정보 한눈에
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass-effect rounded-lg p-6 glow-on-hover">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center mr-4 gradient-bg rounded-full"
+              >
+                <i class="ri-user-line text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-white">👥 참가 대상</h3>
+                <p class="text-gray-300">
+                  사업가, 프리랜서, 스타트업 구성원<br> 
+                  '비개발자'라면 누구나 환영합니다!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-effect rounded-lg p-6 glow-on-hover">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center mr-4 gradient-bg rounded-full"
+              >
+                <i class="ri-group-line text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-white">📊 참가 인원</h3>
+                <p class="text-gray-300">20명 (선착순 마감)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-effect rounded-lg p-6 glow-on-hover">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center mr-4 gradient-bg rounded-full"
+              >
+                <i class="ri-calendar-line text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-white">📅 일시</h3>
+                <p class="text-gray-300">2025. 07. 05. 토요일. <br>
+                  13:00 ~ 17:00</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-effect rounded-lg p-6 glow-on-hover">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center mr-4 gradient-bg rounded-full"
+              >
+                <i class="ri-money-dollar-circle-line text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-white">💰 참가비</h3>
+                <p class="text-gray-300">20,000원</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="mt-8 glass-effect rounded-lg p-6 glow-on-hover"
+          id="location"
+        >
+          <div class="flex items-center mb-4">
+            <div
+              class="w-10 h-10 flex items-center justify-center mr-4 gradient-bg rounded-full"
+            >
+              <i class="ri-map-pin-line text-white text-xl"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-medium text-white">📍 장소</h3>
+              <p class="text-gray-300">서울 강남구 역삼로 172, 마루360</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a
+              href="https://map.naver.com/v5/search/%EC%84%9C%EC%9A%B8%20%EA%B0%95%EB%82%A8%EA%B5%AC%20%EC%97%AD%EC%82%BC%EB%A1%9C%20172%2C%20%EB%A7%88%EB%A3%A8360"
+              target="_blank"
+              class="w-full bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-4 !rounded-button text-lg font-medium flex items-center justify-center hover:from-purple-700 hover:to-blue-700 transition-all duration-300 neon-border"
+            >
+              <i class="ri-map-2-line mr-3 text-xl"></i> 네이버 지도로 확인하기
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. 🎯 마지막 한마디 (CTA Section) -->
+    <section id="cta" class="py-16 px-4 relative">
+      <div class="absolute inset-0 z-0">
+        <div
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary opacity-10 filter blur-3xl"
+        ></div>
+      </div>
+
+      <div class="max-w-sm mx-auto text-center relative z-10">
+        <div class="glass-effect p-6 rounded-2xl animate-glow-pulse">
+          <h2
+            class="text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent"
+          >
+            🎯 마지막 한마디
+          </h2>
+
+          <div
+            class="glass-effect p-4 rounded-xl mb-6 bg-gradient-to-r from-primary/10 to-blue-600/10"
+          >
+              <p class="text-lg font-semibold text-white mb-2">
+                "AI 시대, 혼자 고민하지 마세요."
+              </p>
+              <p class="text-base text-gray-300">
+                다가오는 AI 시대에
+                <span class="text-yellow-300 font-bold neon-text" style="text-shadow: 0 0 10px #fbbf24, 0 0 20px #f59e0b;"><br/>'살아남을 1%'</span>가 되기 위한 첫 걸음.<br />
+                <span class="text-red-500 font-bold neon-text"> '아직까지는'</span> 늦지 않았습니다.<br />
+              </p>
+            </div>
+
+
+            <a
+              id="ctaApplyButton"
+              href="https://forms.gle/TnWra3yN5Vbod3JB6"
+              target="_blank"
+              class="bg-gradient-to-r from-primary via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white px-6 py-4 text-sm rounded-xl shadow-2xl hover:shadow-primary/50 transition-all duration-300 group animate-glow-pulse w-full !rounded-button flex items-center justify-center"
+            >
+              📌 비개발자 AI툴 활용 공유회 신청
+              <i
+                class="ri-arrow-right-line ml-2 group-hover:translate-x-2 transition-transform"
+              ></i>
+            </a>
+          
+          <div class="space-y-8">
+            <div class="text-lg font-semibold text-red-400 animate-pulse">
+              📝 20명한정, 선착순 마감
+            </div>
+
+            <p class="text-lg text-gray-400 mt-4">
+              궁금한 점은 언제든 문의주세요!<br />
+              함께 AI를 탐험해봅시다!! 🚀<br />
+
+            </p>
+
+            <a
+              href="https://open.kakao.com/o/siWYp1Mg"
+              target="_blank"
+              class="inline-flex items-center justify-center mt-6 px-6 py-3 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 text-black font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 group animate-glow-pulse"
+              style="box-shadow: 0 0 20px rgba(255, 235, 59, 0.6), 0 0 40px rgba(255, 235, 59, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);"
+            >
+              <i class="ri-chat-3-fill mr-3 text-xl group-hover:animate-bounce"></i>
+              오픈채팅 문의
+              <i class="ri-external-link-line ml-3 text-lg group-hover:translate-x-1 transition-transform"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- CTA Section End -->
+
+    <!-- Footer -->
+    <footer class="glass-effect py-8 px-4 mt-16">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-6 md:mb-0">
+            <!-- 푸터 로고도 통일 -->
+            <div class="flex items-center justify-center py-1 px-3 rounded-lg glass-effect" 
+                 style="box-shadow: 0 0 8px rgba(108, 43, 217, 0.5);">
+                <span class="text-xl font-bold gradient-text neon-text text-center" style="font-family: 'Noto Sans KR', sans-serif;">
+                  NonDevAI
+                </span>
+            </div>
+            <!-- 푸터 로고 변경 끝 -->
+            <p class="text-sm text-gray-400 mt-2 text-center">
+              비개발자를 위한 AI 활용 커뮤니티
+            </p>
+          </div>
+
+
+        </div>
+
+        <div
+          class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400"
+        >
+          <p>© 2025 AI의 현실을 말하다. All rights reserved.</p>
+          <p class="mt-2">| 문의: hwan.b.cso@gmail.com |</p>
+        </div>
+      </div>
+    </footer>
+    <!-- Fixed Floating Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+      <button
+        class="gradient-bg w-14 h-14 !rounded-full flex items-center justify-center shadow-lg neon-border"
+      >
+        <i class="ri-question-fill text-white text-2xl"></i>
+      </button>
+    </div>
+
+    <script id="aiTrendChart">
+      document.addEventListener("DOMContentLoaded", function () {
+        const chartDom = document.getElementById("aiTrendChart");
+        const myChart = echarts.init(chartDom);
+
+        const option = {
+          backgroundColor: "transparent",
+          tooltip: {
+            trigger: "axis",
+            axisPointer: {
+              type: "shadow",
+            },
+          },
+          legend: {
+            data: ["자동화", "콘텐츠", "분석", "코딩"],
+            textStyle: {
+              color: "#fff",
+            },
+          },
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            data: [
+              "2023 Q4",
+              "2024 Q1",
+              "2024 Q2",
+              "2024 Q3",
+              "2024 Q4",
+              "2025 Q1",
+            ],
+            axisLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.3)",
+              },
+            },
+            axisLabel: {
+              color: "rgba(255, 255, 255, 0.7)",
+            },
+          },
+          yAxis: {
+            type: "value",
+            name: "활용률 (%)",
+            nameTextStyle: {
+              color: "rgba(255, 255, 255, 0.7)",
+            },
+            axisLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.3)",
+              },
+            },
+            axisLabel: {
+              color: "rgba(255, 255, 255, 0.7)",
+            },
+            splitLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          series: [
+            {
+              name: "자동화",
+              type: "line",
+              data: [12, 19, 30, 45, 63, 78],
+              smooth: true,
+              lineStyle: {
+                width: 4,
+                color: "#6C2BD9",
+              },
+              itemStyle: {
+                color: "#6C2BD9",
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: "rgba(108, 43, 217, 0.5)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(108, 43, 217, 0.05)",
+                  },
+                ]),
+              },
+            },
+            {
+              name: "콘텐츠",
+              type: "line",
+              data: [25, 32, 48, 65, 72, 85],
+              smooth: true,
+              lineStyle: {
+                width: 4,
+                color: "#4299E1",
+              },
+              itemStyle: {
+                color: "#4299E1",
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: "rgba(66, 153, 225, 0.5)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(66, 153, 225, 0.05)",
+                  },
+                ]),
+              },
+            },
+            {
+              name: "분석",
+              type: "line",
+              data: [5, 8, 12, 18, 25, 35],
+              smooth: true,
+              lineStyle: {
+                width: 4,
+                color: "#ED64A6",
+              },
+              itemStyle: {
+                color: "#ED64A6",
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: "rgba(237, 100, 166, 0.5)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(237, 100, 166, 0.05)",
+                  },
+                ]),
+              },
+            },
+                       {
+              name: "코딩",
+              type: "line",
+              data: [8, 15, 23, 35, 48, 60],
+              smooth: true,
+              lineStyle: {
+                width: 4,
+                color: "#68D391",
+              },
+              itemStyle: {
+                color: "#68D391",
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: "rgba(104, 211, 145, 0.5)",
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(104, 211, 145, 0.05)",
+                  },
+                ]),
+              },
+            },
+          ],
+        };
+
+        myChart.setOption(option);
+
+        window.addEventListener("resize", function () {
+          myChart.resize();
+        });
+      });
+    </script>
+
+    <script id="scrollAnimation">
+      document.addEventListener("DOMContentLoaded", function () {
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute("href");
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+              // Navigation bar height (approx 80px) consideration for scroll position
+              const offsetTop = targetElement.offsetTop - 80; 
+              window.scrollTo({
+                top: offsetTop,
+                behavior: "smooth",
+              });
+            }
+          });
+        });
+
+        // Glow effect on scroll (이전과 동일하게 유지)
+        const glowElements = document.querySelectorAll(".glass-effect");
+
+        function checkScroll() {
+          glowElements.forEach((element) => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementBottom = element.getBoundingClientRect().bottom;
+            const windowHeight = window.innerHeight;
+
+            if (elementTop < windowHeight * 0.8 && elementBottom > 0) {
+              element.classList.add("neon-border");
+            } else {
+              element.classList.remove("neon-border");
+            }
+          });
+        }
+
+        window.addEventListener("scroll", checkScroll);
+        checkScroll(); // 페이지 로드 시에도 한 번 실행하여 초기 상태 적용
+
+        // 세션별 상세 소개 섹션 스크롤 애니메이션
+        const sessionItems = document.querySelectorAll(".session-item");
+
+        const observerOptions = {
+          root: null, // viewport
+          rootMargin: "0px",
+          threshold: 0.2 // 20% of item visible
+        };
+
+        const sessionObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target); // 한 번만 애니메이션 재생
+            }
+          });
+        }, observerOptions);
+
+        sessionItems.forEach(item => {
+          sessionObserver.observe(item);
+        });
+      });
+    </script>
+    <script id="modalInteraction">
+      document.addEventListener("DOMContentLoaded", function () {
+        const floatingButton = document.querySelector(
+          ".fixed.bottom-6.right-6 button",
+        );
+
+        floatingButton.addEventListener("click", function () {
+          // Create modal
+          const modal = document.createElement("div");
+          modal.className =
+            "fixed inset-0 z-50 flex items-center justify-center p-4";
+          modal.innerHTML = `
+                          <div class="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm" id="modalOverlay"></div>
+                          <div class="glass-effect rounded-lg p-6 max-w-md w-full relative z-10 neon-border">
+                              <div class="flex justify-between items-center mb-4">
+                                  <h3 class="text-xl font-bold gradient-text">문의하기</h3>
+                                  <button id="closeModal" class="text-gray-400 hover:text-white">
+                                      <i class="ri-close-line text-2xl"></i>
+                                  </button>
+                              </div>
+                              <form>
+                                  <div class="mb-4">
+                                      <label class="block text-gray-300 text-sm font-medium mb-2">이름</label>
+                                      <input type="text" class="w-full bg-gray-800 border border-gray-700 !rounded-button px-4 py-2 text-white" placeholder="이름을 입력하세요">
+                                  </div>
+                                  <div class="mb-4">
+                                      <label class="block text-gray-300 text-sm font-medium mb-2">이메일</label>
+                                      <input type="email" class="w-full bg-gray-800 border border-gray-700 !rounded-button px-4 py-2 text-white" placeholder="이메일을 입력하세요">
+                                  </div>
+                                  <div class="mb-6">
+                                      <label class="block text-gray-300 text-sm font-medium mb-2">문의 내용</label>
+                                      <textarea class="w-full bg-gray-800 border border-gray-700 !rounded-button px-4 py-2 text-white h-32" placeholder="문의 내용을 입력하세요"></textarea>
+                                  </div>
+                                  <button type="button" class="w-full gradient-bg text-white px-4 py-2 !rounded-button font-medium">
+                                      보내기
+                                  </button>
+                              </form>
+                          </div>
+                      `;
+
+          document.body.appendChild(modal);
+
+          // Close modal functionality
+          document
+            .getElementById("closeModal")
+            .addEventListener("click", function () {
+              document.body.removeChild(modal);
+            });
+
+          document
+            .getElementById("modalOverlay")
+            .addEventListener("click", function () {
+              document.body.removeChild(modal);
+            });
+        });
+
+        // 구글 폼으로 직접 연결되므로 이 부분은 필요 없음
+        // const registerButton = document.querySelector("#ctaApplyButton");
+        // registerButton.addEventListener("click", function () { ... });
+      });
+    </script>
+  </body>
+</html>
